@@ -23,19 +23,19 @@ import {
 } from './types';
 
 export const App: React.FC = () => {
-  // 1. Initial State from Default Preset (Fine Squiggle)
+  // 1. Initial State from Holbein Dance of Death (1538) Preset
   const defaultPreset = DEFAULT_PRESETS[0];
 
   const [filters, setFilters] = useState<ImageFilters>({
-    brightness: defaultPreset.filters.brightness ?? 10,
-    contrast: defaultPreset.filters.contrast ?? 25,
-    gamma: defaultPreset.filters.gamma ?? 1.0,
+    brightness: defaultPreset.filters.brightness ?? 12,
+    contrast: defaultPreset.filters.contrast ?? 40,
+    gamma: defaultPreset.filters.gamma ?? 1.15,
     invert: defaultPreset.filters.invert ?? false,
-    blurRadius: defaultPreset.filters.blurRadius ?? 1.5,
+    blurRadius: defaultPreset.filters.blurRadius ?? 0.5,
     thresholdEnabled: defaultPreset.filters.thresholdEnabled ?? false,
     thresholdValue: defaultPreset.filters.thresholdValue ?? 128,
     edgeDetection: defaultPreset.filters.edgeDetection ?? true,
-    edgeBlend: defaultPreset.filters.edgeBlend ?? 0.25,
+    edgeBlend: defaultPreset.filters.edgeBlend ?? 0.45,
   });
 
   const [algorithm, setAlgorithm] = useState<AlgorithmConfig>(defaultPreset.algorithm);
@@ -83,10 +83,10 @@ export const App: React.FC = () => {
     showVertices: false,
     showGrid: true,
     showRulers: true,
-    penColor: '#111827',
+    penColor: '#111111',
     penWidthMm: 0.35,
     travelColor: 'rgba(255, 61, 113, 0.65)',
-    paperColor: '#ffffff',
+    paperColor: defaultPreset.paperColor || '#f4eedb',
   });
 
   const [simulationState, setSimulationState] = useState<SimulationState>({
@@ -101,7 +101,7 @@ export const App: React.FC = () => {
   });
 
   const [currentImageData, setCurrentImageData] = useState<ImageData | null>(null);
-  const [imageName, setImageName] = useState<string>('Classic Portrait');
+  const [imageName, setImageName] = useState<string>('Dance of Death (1538)');
 
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -136,7 +136,7 @@ export const App: React.FC = () => {
 
   // Load initial sample image on mount
   useEffect(() => {
-    const defaultSample = SAMPLE_IMAGES[0];
+    const defaultSample = SAMPLE_IMAGES[0]; // Dance of Death (1538)
     const imgData = defaultSample.generate();
     setCurrentImageData(imgData);
     setImageName(defaultSample.name);
@@ -166,8 +166,8 @@ export const App: React.FC = () => {
   // Auto-fit on initial render or resize
   useEffect(() => {
     const handleResize = () => {
-      const containerW = window.innerWidth - 384; // subtract sidebar
-      const containerH = window.innerHeight - 56;  // subtract header
+      const containerW = window.innerWidth - 384;
+      const containerH = window.innerHeight - 56;
       if (containerW > 100 && containerH > 100) {
         fitToViewport(containerW, containerH, paperWidthMm, paperHeightMm);
       }
@@ -177,7 +177,6 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [paperWidthMm, paperHeightMm, fitToViewport]);
 
-  // Debounced auto-generation on parameter changes
   const debounceTimerRef = useRef<number | null>(null);
 
   const triggerCompute = useCallback(() => {
@@ -220,6 +219,9 @@ export const App: React.FC = () => {
     }
     if (preset.optimization) {
       setOptimization((prev) => ({ ...prev, ...preset.optimization }));
+    }
+    if (preset.paperColor) {
+      setViewportSettings((prev) => ({ ...prev, paperColor: preset.paperColor! }));
     }
   };
 

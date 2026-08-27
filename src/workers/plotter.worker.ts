@@ -1,5 +1,6 @@
 import { WorkerGenerateRequest, WorkerMessage, Path } from '../types';
 import { processImageToLuminance } from '../lib/image/imageProcessor';
+import { generateWoodcutPaths } from '../lib/algorithms/woodcut';
 import { generateSquigglePaths } from '../lib/algorithms/squiggle';
 import { generateCrossHatchPaths } from '../lib/algorithms/crosshatch';
 import { generateSpiralPaths } from '../lib/algorithms/spiral';
@@ -33,6 +34,9 @@ self.onmessage = (event: MessageEvent<WorkerGenerateRequest>) => {
       };
 
       switch (algorithm.type) {
+        case 'woodcut':
+          rawPaths = generateWoodcutPaths(luminanceMap, algorithm.woodcut, bounds);
+          break;
         case 'squiggle':
           rawPaths = generateSquigglePaths(luminanceMap, algorithm.squiggle, bounds);
           break;

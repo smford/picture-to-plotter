@@ -15,12 +15,24 @@ export interface ImageFilters {
 }
 
 export type AlgorithmType =
+  | 'woodcut'
   | 'squiggle'
   | 'crosshatch'
   | 'spiral'
   | 'stipple-tsp'
   | 'contours'
   | 'flowfield';
+
+export interface WoodcutParams {
+  hatchSpacing: number;     // mm between hatch strokes (e.g. 0.8 to 4.0)
+  edgeStrength: number;     // contour carving prominence (0.0 to 1.0)
+  crossHatchShadows: boolean;// cross-hatch deep shadow regions
+  gougeTexture: boolean;    // woodblock chisel flecks in midtones
+  handCarvedBorder: boolean;// authentic 16th-century rough woodblock border
+  hatchAngle: number;       // primary hatch angle in degrees (e.g. 45 or dynamic)
+  contrastBoost: number;    // woodcut tonal flattening (1.0 to 3.0)
+  minStrokeLengthMm: number;// minimum stroke length in mm
+}
 
 export interface SquiggleParams {
   lineSpacing: number;      // mm between scanlines (e.g. 1.0 to 10.0)
@@ -79,6 +91,7 @@ export interface FlowFieldParams {
 
 export interface AlgorithmConfig {
   type: AlgorithmType;
+  woodcut: WoodcutParams;
   squiggle: SquiggleParams;
   crosshatch: CrossHatchParams;
   spiral: SpiralParams;
@@ -170,14 +183,14 @@ export interface Preset {
   id: string;
   name: string;
   description: string;
-  category: 'plotter' | 'laser' | 'artistic' | 'minimalist';
+  category: 'plotter' | 'laser' | 'artistic' | 'minimalist' | 'renaissance';
   filters: Partial<ImageFilters>;
   algorithm: AlgorithmConfig;
   optimization: Partial<OptimizationParams>;
   machine?: Partial<MachineSettings>;
+  paperColor?: string;
 }
 
-// Worker message interfaces
 export interface WorkerGenerateRequest {
   type: 'GENERATE';
   id: string;
@@ -197,7 +210,7 @@ export interface WorkerProgressMessage {
   type: 'PROGRESS';
   id: string;
   phase: string;
-  progress: number; // 0 to 1
+  progress: number;
 }
 
 export interface WorkerSuccessMessage {

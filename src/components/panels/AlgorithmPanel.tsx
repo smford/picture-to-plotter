@@ -6,6 +6,7 @@ import {
   CircleDot,
   Layers,
   Wind,
+  Feather,
 } from 'lucide-react';
 import { AlgorithmConfig, AlgorithmType } from '../../types';
 
@@ -18,7 +19,14 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
   algorithm,
   onUpdateAlgorithm,
 }) => {
-  const algorithms: { id: AlgorithmType; name: string; icon: React.ReactNode; desc: string }[] = [
+  const algorithms: { id: AlgorithmType; name: string; icon: React.ReactNode; desc: string; badge?: string }[] = [
+    {
+      id: 'woodcut',
+      name: 'Woodcut (1538)',
+      icon: <Feather size={16} />,
+      desc: 'Holbein & Dürer Renaissance woodblock',
+      badge: '16th C',
+    },
     {
       id: 'squiggle',
       name: 'Squiggle / Waves',
@@ -73,12 +81,17 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
                 onClick={() =>
                   onUpdateAlgorithm((prev) => ({ ...prev, type: algo.id }))
                 }
-                className={`p-2.5 rounded-xl text-left flex flex-col gap-1 border transition-all ${
+                className={`p-2.5 rounded-xl text-left flex flex-col gap-1 border transition-all relative overflow-hidden ${
                   isSelected
                     ? 'bg-cad-accent/15 border-cad-accent text-cad-accent shadow-glow-accent'
                     : 'cad-panel-sub border-cad-border hover:border-cad-borderLight text-cad-text'
                 }`}
               >
+                {algo.badge && (
+                  <span className="absolute top-1.5 right-1.5 text-[8px] font-mono px-1 py-0.5 rounded bg-cad-accent/20 text-cad-accent font-bold">
+                    {algo.badge}
+                  </span>
+                )}
                 <div className="flex items-center gap-1.5">
                   <span className={isSelected ? 'text-cad-accent' : 'text-cad-textMuted'}>
                     {algo.icon}
@@ -99,6 +112,176 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
         <label className="text-[11px] font-semibold text-cad-textMuted uppercase tracking-wider">
           {algorithm.type.toUpperCase()} PARAMETERS
         </label>
+
+        {/* 0. WOODCUT PARAMS (Northern Renaissance) */}
+        {algorithm.type === 'woodcut' && (
+          <div className="flex flex-col gap-3">
+            {/* Hatch Spacing */}
+            <div className="flex flex-col gap-1">
+              <div className="flex justify-between text-cad-textMuted font-mono">
+                <span>Woodblock Line Spacing</span>
+                <span className="text-cad-accent">{algorithm.woodcut.hatchSpacing.toFixed(1)} mm</span>
+              </div>
+              <input
+                type="range"
+                min="0.7"
+                max="3.5"
+                step="0.1"
+                value={algorithm.woodcut.hatchSpacing}
+                onChange={(e) =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, hatchSpacing: parseFloat(e.target.value) },
+                  }))
+                }
+              />
+            </div>
+
+            {/* Edge / Outline Strength */}
+            <div className="flex flex-col gap-1">
+              <div className="flex justify-between text-cad-textMuted font-mono">
+                <span>Carved Contour Outlines</span>
+                <span className="text-cad-accent">{(algorithm.woodcut.edgeStrength * 100).toFixed(0)}%</span>
+              </div>
+              <input
+                type="range"
+                min="0.1"
+                max="1.0"
+                step="0.05"
+                value={algorithm.woodcut.edgeStrength}
+                onChange={(e) =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, edgeStrength: parseFloat(e.target.value) },
+                  }))
+                }
+              />
+            </div>
+
+            {/* Hatch Angle */}
+            <div className="flex flex-col gap-1">
+              <div className="flex justify-between text-cad-textMuted font-mono">
+                <span>Relief Hatch Angle</span>
+                <span className="text-cad-accent">{algorithm.woodcut.hatchAngle}°</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="180"
+                step="5"
+                value={algorithm.woodcut.hatchAngle}
+                onChange={(e) =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, hatchAngle: parseInt(e.target.value) },
+                  }))
+                }
+              />
+            </div>
+
+            {/* Tonal Contrast / Flattening */}
+            <div className="flex flex-col gap-1">
+              <div className="flex justify-between text-cad-textMuted font-mono">
+                <span>Tonal Flattening (High-Contrast)</span>
+                <span className="text-cad-accent">{algorithm.woodcut.contrastBoost.toFixed(2)}x</span>
+              </div>
+              <input
+                type="range"
+                min="1.0"
+                max="2.5"
+                step="0.05"
+                value={algorithm.woodcut.contrastBoost}
+                onChange={(e) =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, contrastBoost: parseFloat(e.target.value) },
+                  }))
+                }
+              />
+            </div>
+
+            {/* Shadow Cross-Hatch Toggle */}
+            <div className="flex items-center justify-between py-1">
+              <div className="flex flex-col">
+                <span className="text-cad-text font-medium">Deep Shadow Cross-Hatching</span>
+                <span className="text-[10px] text-cad-textDim">Secondary perpendicular pass in darks</span>
+              </div>
+              <button
+                onClick={() =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, crossHatchShadows: !prev.woodcut.crossHatchShadows },
+                  }))
+                }
+                className={`w-9 h-5 rounded-full transition-colors relative ${
+                  algorithm.woodcut.crossHatchShadows
+                    ? 'bg-cad-accent'
+                    : 'bg-cad-panelSub border border-cad-border'
+                }`}
+              >
+                <span
+                  className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    algorithm.woodcut.crossHatchShadows ? 'left-4.5' : 'left-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Chisel Gouge Flecks */}
+            <div className="flex items-center justify-between py-1">
+              <div className="flex flex-col">
+                <span className="text-cad-text font-medium">Woodblock Chisel Flecks</span>
+                <span className="text-[10px] text-cad-textDim">Authentic 1500s midtone gouge textures</span>
+              </div>
+              <button
+                onClick={() =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, gougeTexture: !prev.woodcut.gougeTexture },
+                  }))
+                }
+                className={`w-9 h-5 rounded-full transition-colors relative ${
+                  algorithm.woodcut.gougeTexture
+                    ? 'bg-cad-accent'
+                    : 'bg-cad-panelSub border border-cad-border'
+                }`}
+              >
+                <span
+                  className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    algorithm.woodcut.gougeTexture ? 'left-4.5' : 'left-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Hand-Carved Border Frame */}
+            <div className="flex items-center justify-between py-1">
+              <div className="flex flex-col">
+                <span className="text-cad-text font-medium">Hand-Carved Double Border</span>
+                <span className="text-[10px] text-cad-textDim">Rough woodcut framing & corner rosettes</span>
+              </div>
+              <button
+                onClick={() =>
+                  onUpdateAlgorithm((prev) => ({
+                    ...prev,
+                    woodcut: { ...prev.woodcut, handCarvedBorder: !prev.woodcut.handCarvedBorder },
+                  }))
+                }
+                className={`w-9 h-5 rounded-full transition-colors relative ${
+                  algorithm.woodcut.handCarvedBorder
+                    ? 'bg-cad-accent'
+                    : 'bg-cad-panelSub border border-cad-border'
+                }`}
+              >
+                <span
+                  className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
+                    algorithm.woodcut.handCarvedBorder ? 'left-4.5' : 'left-0.5'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 1. SQUIGGLE PARAMS */}
         {algorithm.type === 'squiggle' && (
@@ -285,13 +468,13 @@ export const AlgorithmPanel: React.FC<AlgorithmPanelProps> = ({
               <input
                 type="range"
                 min="0"
-                max="1"
-                step="0.05"
-                value={algorithm.crosshatch.wobble}
+                max="100"
+                step="5"
+                value={algorithm.crosshatch.wobble * 100}
                 onChange={(e) =>
                   onUpdateAlgorithm((prev) => ({
                     ...prev,
-                    crosshatch: { ...prev.crosshatch, wobble: parseFloat(e.target.value) },
+                    crosshatch: { ...prev.crosshatch, wobble: parseFloat(e.target.value) / 100 },
                   }))
                 }
               />
