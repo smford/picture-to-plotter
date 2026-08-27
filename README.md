@@ -1,4 +1,4 @@
-# VectorPlotter CAM 🖊️📐
+# VectorPlotter CAM
 
 A production-ready, high-performance, 100% client-side web application that converts raster photographs into optimized, CAM-ready vector plotter artwork with instant export to **Plotter-Ready SVG**, **AutoCAD R12 DXF**, and **CNC G-Code (.gcode / .nc)**.
 
